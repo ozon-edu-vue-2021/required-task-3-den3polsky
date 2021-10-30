@@ -87,7 +87,7 @@ export default {
                     .attr("id", table._id)
                     .classed("employer-place", true)
 
-                targetSeat
+                    
                     .append("g")
                     .attr("transform", `rotate(${table.rotate || 0})`)
                     .attr("group_id", table.group_id)

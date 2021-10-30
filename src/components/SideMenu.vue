@@ -46,12 +46,23 @@
                     >
                         Список пуст
                     </span>
+
+               
+               
+                <div class="legend__total--count">
+                    <div>Общее колличество</div>
+                    <div>{{totalCount}}</div>                        
                 </div>
+
+                </div>
+
+                
+
                 <div class="legend__chart">
                 
                     <PieChart  ref="chart" />
                      
-                     <div class="data-now"> {{formatedDate}} </div>
+                     <div class="legend__data-now"> {{formatedDate}} </div>
 
                 </div>
             </div>
@@ -124,6 +135,11 @@ export default {
 
     computed: {
 
+        totalCount() {
+
+            return this.legend.reduce((sum, current) => sum + current.counter, 0)
+        },
+
         formatedDate() {
 
                 return format(new Date(), 'dd.MM.yyyy HH:mm')
@@ -156,7 +172,7 @@ export default {
             const options = {
 
                 borderWidth: "10px",
-                
+
                 legend: {
                     display: false,
                 },
@@ -240,10 +256,10 @@ h3 {
 .content .legend .legend__data {
     display: flex;
     height: 100%;
+    flex-direction: column;
 }
 
-.content .legend .legend__items {
-    flex: 1;
+.content .legend .legend__items {    
     width: 100%;
 }
 
@@ -269,10 +285,17 @@ h3 {
     padding-top: 20px;
 }
 
-.data-now {
+.content .legend .legend__data-now {
     text-align: center;
     margin-top: 20px;
     font-size: 12px;
+}
+
+.legend__total--count {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
 }
 
 </style>
