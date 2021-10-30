@@ -27,14 +27,18 @@
                         v-if="legend.length > 0"
                         class="legend__items"
                     >
-                        <LegendItem
-                            v-for="(item, index) in legend"
-                            :key="index"
-                            :color="item.color"
-                            :text="item.text"
-                            :counter="item.counter"
-                            class="legend__item"
-                        />
+
+                        <Draggable v-model="legend">
+                            <LegendItem
+                                v-for="(item, index) in legend"
+                                :key="index"
+                                :color="item.color"
+                                :text="item.text"
+                                :counter="item.counter"
+                                class="legend__item"
+                            />
+                        </Draggable>
+                        
                     </div>
                     <span
                         v-else
@@ -44,7 +48,11 @@
                     </span>
                 </div>
                 <div class="legend__chart">
-                    <!-- chart -->
+                
+                    <PieChart  ref="chart" />
+                     
+                     <div class="data-now"> {{formatedDate}} </div>
+
                 </div>
             </div>
             <div
@@ -65,11 +73,18 @@
 </template>
 
 <script>
+
+import Draggable from "vuedraggable"
+import { Doughnut as PieChart } from "vue-chartjs";
+import {format} from 'date-fns'
+
+
 import LegendItem from "./SideMenu/LegendItem.vue";
 import PersonCard from "./SideMenu/PersonCard.vue";
 import legend from "@/assets/data/legend.json";
 
 export default {
+
     props: {
         isUserOpenned: {
             type: Boolean,
@@ -80,19 +95,77 @@ export default {
             default: null,
         },
     },
+
     components: {
         LegendItem,
         PersonCard,
+        Draggable,
+        PieChart
     },
+
     data() {
+
         return {
+
             legend: [],
         };
     },
+    
+    mounted() {
+        
+        this.makeChart()
+
+    },
+
     created() {
+
         this.loadLegend();
     },
+
+    computed: {
+
+        formatedDate() {
+
+                return format(new Date(), 'dd.MM.yyyy HH:mm')
+        }
+    },
+
     methods: {
+
+        makeChart() {
+
+            const legendChartData = {
+
+                    labels: this.legend.map((it) => it.text),
+
+                    datasets: [
+                        {
+                            label: "Легенда",
+
+                            backgroundColor: this.legend.map(
+                                (legendItem) => legendItem.color
+                            ),
+
+                            data: this.legend.map(
+                                (legendItem) => legendItem.counter
+                            ),
+                        },
+                    ]
+            }
+
+            const options = {
+
+                borderWidth: "10px",
+                
+                legend: {
+                    display: false,
+                },
+            }
+
+            this.$refs.chart.renderChart(legendChartData, options)
+    
+        },
+
         loadLegend() {
             this.legend = legend;
         },
@@ -195,4 +268,11 @@ h3 {
 .profile {
     padding-top: 20px;
 }
+
+.data-now {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+}
+
 </style>

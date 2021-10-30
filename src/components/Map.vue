@@ -6,19 +6,99 @@
             v-if="!isLoading"
             class="map-root"
         >
-            <!-- map -->
+            <MapSvg ref="svg" />
+            <Table v-show="false" ref="table"/>
+
         </div>
         <div v-else>Loading...</div>
     </div>
 </template>
 
 <script>
+
+import MapSvg from '/src/assets/images/map.svg'
+import Table from '@/assets/images/workPlace.svg';
+
+import tables from "@/assets/data/tables.json";
+import legend from "@/assets/data/legend.json";
+
+
+import * as d3 from 'd3'
+
 export default {
-    data() {
-        return {
-            isLoading: false,
-        };
+
+    components: {
+
+        MapSvg,
+        Table
     },
+
+    data() {
+
+        return {
+
+            isLoading: false,
+            svg: null,
+            g: null,
+            tabelSvg: null,
+            tables: [], 
+            
+        };
+
+    },
+
+    created() {
+
+            this.tables = tables
+    },
+
+    mounted() {
+
+        this.isLoading = true
+
+        this.svg = d3.select(this.$refs.svg)
+        this.g = this.svg.select('g')
+        this.tableSvg = d3.select(this.$refs.table)
+
+
+        if (this.g) {
+
+            this.drawTables()
+
+        } else {
+
+            alert("SVG is incorrect")
+        }
+            
+        this.isLoading = false
+    },
+
+    methods: {
+
+        drawTables() {
+
+            const svgTablesGroupPlace = this.g.append('g').classed("groupPlaces", true)
+
+            this.tables.map(table => {
+
+                const targetSeat = svgTablesGroupPlace
+                    .append("g")
+                    .attr("transform", `translate(${table.x}, ${table.y}) scale(0.5)`)
+                    .attr("id", table._id)
+                    .classed("employer-place", true)
+
+                targetSeat
+                    .append("g")
+                    .attr("transform", `rotate(${table.rotate || 0})`)
+                    .attr("group_id", table.group_id)
+                    .classed("table", true)
+                    .html(this.tableSvg.html())
+                    .attr("fill", legend.find((it) => it.group_id === table.group_id)?.color ?? "transparent")
+            })
+        }
+    }
+
+
 };
 </script>
 
