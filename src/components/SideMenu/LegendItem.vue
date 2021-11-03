@@ -31,6 +31,7 @@ export default {
 </script>
 
 <style scoped>
+
 .legend-item {
     display: flex;
     align-items: center;

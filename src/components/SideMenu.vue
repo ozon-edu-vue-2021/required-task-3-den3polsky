@@ -27,7 +27,6 @@
                         v-if="legend.length > 0"
                         class="legend__items"
                     >
-
                         <Draggable v-model="legend">
                             <LegendItem
                                 v-for="(item, index) in legend"
@@ -47,8 +46,6 @@
                         Список пуст
                     </span>
 
-               
-               
                 <div class="legend__total--count">
                     <div>Общее колличество</div>
                     <div>{{totalCount}}</div>                        
@@ -56,16 +53,15 @@
 
                 </div>
 
-                
 
-                <div class="legend__chart">
-                
-                    <PieChart  ref="chart" />
-                     
-                     <div class="legend__data-now"> {{formatedDate}} </div>
-
+                <div  class="legend__chart">                                  
+                    <PieChart ref="chart" />                     
+                    <div class="legend__data-now"> {{formatedDate}} </div>
                 </div>
+
+
             </div>
+
             <div
                 v-else
                 class="profile"
@@ -77,7 +73,10 @@
                     Место пустое
                 </div>
 
-                <PersonCard :person="person" />
+                <template v-else>
+                    <PersonCard  :person="person" />
+                </template>
+
             </div>
         </div>
     </div>
@@ -85,6 +84,7 @@
 
 <script>
 
+import Vue from 'vue'
 import Draggable from "vuedraggable"
 import { Doughnut as PieChart } from "vue-chartjs";
 import {format} from 'date-fns'
@@ -128,6 +128,20 @@ export default {
 
     },
 
+
+    watch: {
+        
+        isUserOpenned: function (isOpen) {
+
+            if (!isOpen) {
+
+                Vue.nextTick( () => this.makeChart() )
+            }
+               
+        }
+    },
+
+
     created() {
 
         this.loadLegend();
@@ -143,7 +157,7 @@ export default {
         formatedDate() {
 
                 return format(new Date(), 'dd.MM.yyyy HH:mm')
-        }
+        },
     },
 
     methods: {
@@ -183,10 +197,12 @@ export default {
         },
 
         loadLegend() {
-            this.legend = legend;
+            this.legend = legend;           
         },
+
         closeProfile() {
             this.$emit("update:isUserOpenned", false);
+           
         },
     },
 };
@@ -231,11 +247,11 @@ export default {
 }
 
 .toolbar__header .action .arrow {
-    width: 10px;
-    height: 10px;
-    border-top: 2px solid blue;
-    border-right: 2px solid blue;
-    transform: rotate(-135deg);
+    width: 16px;
+    height: 16px;
+    border-top: 3px solid blue;
+    border-right: 3px solid blue;
+    transform: rotate(225deg);
 }
 
 h3 {

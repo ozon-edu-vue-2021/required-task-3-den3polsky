@@ -6,21 +6,29 @@
                 alt="photo"
             />
         </div>
+        
         <div class="person__info">
             <div class="person__info-name">
                 <b>{{ person.name }} ({{ person.age }})</b>
             </div>
 
-            <div class="person__info-email">Почта: {{ person.email }}</div>
-            <div class="person__info-email">
-                Дата регистрации: {{ formatedDate }}
+            <div class="person__info-department"  :style="{ '--marker-color': person.department.color }">
+                <b>{{person.department.text}}</b>
             </div>
-            <div class="person__info-about">О себе: {{ person.about }}</div>
+
+            <div class="person__info-email"><b>Почта:</b> {{ person.email }}</div>
+            <div class="person__info-email">
+                <b>Дата регистрации:</b> {{ formatedDate }}
+            </div>
+            <div class="person__info-about"><b>О себе:</b> {{ person.about }}</div>
         </div>
     </div>
 </template>
 
 <script>
+
+import {format} from 'date-fns'
+
 export default {
     props: {
         person: {
@@ -30,7 +38,7 @@ export default {
     },
     computed: {
         formatedDate() {
-            return this.person.registered;
+            return format(new Date(this.person.registered), 'dd.MM.yyyy');
         },
     },
 };
@@ -57,4 +65,12 @@ export default {
 .person__info-name {
     margin-bottom: 10px;
 }
+
+.person__info-department {
+
+    border-bottom: var(--marker-color) 3px solid;
+    width: fit-content;
+}
+
+
 </style>

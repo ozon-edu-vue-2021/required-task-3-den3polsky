@@ -1,15 +1,19 @@
 <template>
     <div id="app">
         <div class="office">
-            <Map />
-            <SideMenu />
+            <Map @selectTabel="selectTabelHandler" />
+            <SideMenu :person="person" :isUserOpenned.sync="isUserOpenned" />
         </div>
     </div>
 </template>
 
 <script>
+
 import Map from "./components/Map.vue";
 import SideMenu from "./components/SideMenu.vue";
+
+import persons from "@/assets/data/people.json";
+import legend from "@/assets/data/legend.json";
 
 export default {
   name: "App",
@@ -17,6 +21,36 @@ export default {
     Map,
     SideMenu,
   },
+
+  data() {
+
+        return {
+
+            person: null,
+            isUserOpenned: false,
+        }
+    },
+
+  methods: {
+
+      selectTabelHandler(tabel) {    
+
+            if (!tabel) {
+
+                this.person = null
+                this.isUserOpenned = false
+
+            } else {
+
+                this.person = persons.find(person => person.tableId == tabel._id)             
+                this.person.department = legend.find(group => group.group_id == tabel.group_id)
+                
+                this.isUserOpenned = true               
+            }
+
+      }
+  }
+
 };
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-    <div class="map">
+    <div class="map" @click="clickOnMapHandler">
         <h3>Карта офиса</h3>
 
         <div
@@ -7,7 +7,7 @@
             class="map-root"
         >
             <MapSvg ref="svg" />
-            <Table v-show="false" ref="table"/>
+            <Table v-show="false" ref="table" />
 
         </div>
         <div v-else>Loading...</div>
@@ -16,12 +16,11 @@
 
 <script>
 
-import MapSvg from '/src/assets/images/map.svg'
+import MapSvg from '@/assets/images/map.svg'
 import Table from '@/assets/images/workPlace.svg';
 
 import tables from "@/assets/data/tables.json";
 import legend from "@/assets/data/legend.json";
-
 
 import * as d3 from 'd3'
 
@@ -86,8 +85,9 @@ export default {
                     .attr("transform", `translate(${table.x}, ${table.y}) scale(0.5)`)
                     .attr("id", table._id)
                     .classed("employer-place", true)
+                    .on("click", (event) => this.selectTabel(table, event))
 
-                    
+                targetSeat
                     .append("g")
                     .attr("transform", `rotate(${table.rotate || 0})`)
                     .attr("group_id", table.group_id)
@@ -95,7 +95,23 @@ export default {
                     .html(this.tableSvg.html())
                     .attr("fill", legend.find((it) => it.group_id === table.group_id)?.color ?? "transparent")
             })
+        },
+
+
+        selectTabel(table, event) {         
+
+           this.$emit('selectTabel', table)
+
+           event.stopPropagation()
+        },
+
+        //Если кликнули по области карты, но не по столу
+        clickOnMapHandler() {
+        
+           this.$emit('selectTabel', null)
+
         }
+
     }
 
 
