@@ -20,7 +20,7 @@ export default {
   components: {
     Map,
     SideMenu,
-  },
+  },    
 
   data() {
 
@@ -35,6 +35,9 @@ export default {
 
       selectTabelHandler(tabel) {    
 
+
+            console.log(tabel)
+
             if (!tabel) {
 
                 this.person = null
@@ -43,7 +46,13 @@ export default {
             } else {
 
                 this.person = persons.find(person => person.tableId == tabel._id)             
-                this.person.department = legend.find(group => group.group_id == tabel.group_id)
+                
+                if (this.person) {
+
+                    this.person.department = legend.find(group => group.group_id == tabel.group_id)
+                }
+
+                
                 
                 this.isUserOpenned = true               
             }
