@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <div class="office">
-            <Map @selectTabel="selectTabelHandler" />
+            <Map @selectTabel="selectTabelHandler" :isUserOpenned="isUserOpenned"/>
             <SideMenu :person="person" :isUserOpenned.sync="isUserOpenned" />
         </div>
     </div>
@@ -33,10 +33,7 @@ export default {
 
   methods: {
 
-      selectTabelHandler(tabel) {    
-
-
-            console.log(tabel)
+      selectTabelHandler(tabel) {     
 
             if (!tabel) {
 
@@ -52,8 +49,6 @@ export default {
                     this.person.department = legend.find(group => group.group_id == tabel.group_id)
                 }
 
-                
-                
                 this.isUserOpenned = true               
             }
 

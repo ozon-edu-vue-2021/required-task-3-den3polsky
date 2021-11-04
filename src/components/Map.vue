@@ -26,6 +26,14 @@ import * as d3 from 'd3'
 
 export default {
 
+    
+    props: {
+        isUserOpenned: {
+            type: Boolean,
+            default: false,
+        },        
+    },
+
     components: {
 
         MapSvg,
@@ -40,7 +48,8 @@ export default {
             svg: null,
             g: null,
             tabelSvg: null,
-            tables: [], 
+            tables: [],
+            selectedTabel: null
             
         };
 
@@ -101,18 +110,43 @@ export default {
         selectTabel(table, event) {         
 
            this.$emit('selectTabel', table)
-
            event.stopPropagation()
+
+           this.resetTabelSelection()
+           this.selectedTabel = d3.select(event.target)           
+           this.selectedTabel.classed('selected-tabel', true)           
         },
 
         //Если кликнули по области карты, но не по столу
         clickOnMapHandler() {
         
+           this.resetTabelSelection()
            this.$emit('selectTabel', null)
 
+        },
+
+        resetTabelSelection() {
+            
+           if (this.selectedTabel) {               
+
+              this.selectedTabel.classed('selected-tabel', false)
+              this.selectedTabel = null
+           }
         }
 
-    }
+    },
+
+    watch: {
+        
+        isUserOpenned: function (isOpen) {
+
+            if (!isOpen) {
+
+                this.resetTabelSelection()
+            }
+               
+        }
+    },
 
 
 };
@@ -148,4 +182,13 @@ h3 {
 ::v-deep .table {
     cursor: pointer;
 }
+
+.selected-tabel {
+    outline-color: rgb(255 47 47);
+    outline-style: solid;
+    outline-width: thin;
+    outline-offset: 2px;
+}
+
+
 </style>
