@@ -1,24 +1,154 @@
 <template>
-    <div class="map">
+    <div class="map" @click="clickOnMapHandler">
         <h3>Карта офиса</h3>
 
         <div
             v-if="!isLoading"
             class="map-root"
         >
-            <!-- map -->
+            <MapSvg ref="svg" />
+            <Table v-show="false" ref="table" />
+
         </div>
         <div v-else>Loading...</div>
     </div>
 </template>
 
 <script>
+
+import MapSvg from '@/assets/images/map.svg'
+import Table from '@/assets/images/workPlace.svg';
+
+import tables from "@/assets/data/tables.json";
+import legend from "@/assets/data/legend.json";
+
+import * as d3 from 'd3'
+
 export default {
-    data() {
-        return {
-            isLoading: false,
-        };
+
+    
+    props: {
+        isUserOpenned: {
+            type: Boolean,
+            default: false,
+        },        
     },
+
+    components: {
+
+        MapSvg,
+        Table
+    },
+
+    data() {
+
+        return {
+
+            isLoading: false,
+            svg: null,
+            g: null,
+            tabelSvg: null,
+            tables: [],
+            selectedTabel: null
+            
+        };
+
+    },
+
+    created() {
+
+            this.tables = tables
+    },
+
+    mounted() {
+
+        this.isLoading = true
+
+        this.svg = d3.select(this.$refs.svg)
+        this.g = this.svg.select('g')
+        this.tableSvg = d3.select(this.$refs.table)
+
+
+        if (this.g) {
+
+            this.drawTables()
+
+        } else {
+
+            alert("SVG is incorrect")
+        }
+            
+        this.isLoading = false
+    },
+
+    methods: {
+
+        drawTables() {
+
+            const svgTablesGroupPlace = this.g.append('g').classed("groupPlaces", true)
+
+            this.tables.map(table => {
+
+                const targetSeat = svgTablesGroupPlace
+                    .append("g")
+                    .attr("transform", `translate(${table.x}, ${table.y}) scale(0.5)`)
+                    .attr("id", table._id)
+                    .classed("employer-place", true)
+                    .on("click", (event) => this.selectTabel(table, event))
+
+                targetSeat
+                    .append("g")
+                    .attr("transform", `rotate(${table.rotate || 0})`)
+                    .attr("group_id", table.group_id)
+                    .classed("table", true)
+                    .html(this.tableSvg.html())
+                    .attr("fill", legend.find((it) => it.group_id === table.group_id)?.color ?? "transparent")
+            })
+        },
+
+
+        selectTabel(table, event) {         
+
+           this.$emit('selectTabel', table)
+           event.stopPropagation()
+
+           this.resetTabelSelection()
+           this.selectedTabel = d3.select(event.target)           
+           this.selectedTabel.classed('selected-tabel', true)           
+        },
+
+        //Если кликнули по области карты, но не по столу
+        clickOnMapHandler() {
+        
+           this.resetTabelSelection()
+           this.$emit('selectTabel', null)
+
+        },
+
+        resetTabelSelection() {
+            
+           if (this.selectedTabel) {               
+
+              this.selectedTabel.classed('selected-tabel', false)
+              this.selectedTabel = null
+           }
+        }
+
+    },
+
+    watch: {
+        
+        isUserOpenned: function (isOpen) {
+
+            if (!isOpen) {
+
+                this.resetTabelSelection()
+            }
+               
+        }
+    },
+
+
 };
 </script>
 
@@ -52,4 +182,13 @@ h3 {
 ::v-deep .table {
     cursor: pointer;
 }
+
+.selected-tabel {
+    outline-color: rgb(255 47 47);
+    outline-style: solid;
+    outline-width: thin;
+    outline-offset: 2px;
+}
+
+
 </style>

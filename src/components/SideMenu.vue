@@ -27,14 +27,17 @@
                         v-if="legend.length > 0"
                         class="legend__items"
                     >
-                        <LegendItem
-                            v-for="(item, index) in legend"
-                            :key="index"
-                            :color="item.color"
-                            :text="item.text"
-                            :counter="item.counter"
-                            class="legend__item"
-                        />
+                        <Draggable v-model="legend">
+                            <LegendItem
+                                v-for="(item, index) in legend"
+                                :key="index"
+                                :color="item.color"
+                                :text="item.text"
+                                :counter="item.counter"
+                                class="legend__item"
+                            />
+                        </Draggable>
+                        
                     </div>
                     <span
                         v-else
@@ -42,11 +45,23 @@
                     >
                         Список пуст
                     </span>
+
+                <div class="legend__total--count">
+                    <div>Общее колличество</div>
+                    <div>{{totalCount}}</div>                        
                 </div>
-                <div class="legend__chart">
-                    <!-- chart -->
+
                 </div>
+
+
+                <div  class="legend__chart">                                  
+                    <PieChart ref="chart" />                     
+                    <div class="legend__data-now"> {{formatedDate}} </div>
+                </div>
+
+
             </div>
+
             <div
                 v-else
                 class="profile"
@@ -58,18 +73,29 @@
                     Место пустое
                 </div>
 
-                <PersonCard :person="person" />
+                <template v-else>
+                    <PersonCard  :person="person" />
+                </template>
+
             </div>
         </div>
     </div>
 </template>
 
 <script>
+
+import Vue from 'vue'
+import Draggable from "vuedraggable"
+import { Doughnut as PieChart } from "vue-chartjs";
+import {format} from 'date-fns'
+
+
 import LegendItem from "./SideMenu/LegendItem.vue";
 import PersonCard from "./SideMenu/PersonCard.vue";
 import legend from "@/assets/data/legend.json";
 
 export default {
+
     props: {
         isUserOpenned: {
             type: Boolean,
@@ -80,24 +106,103 @@ export default {
             default: null,
         },
     },
+
     components: {
         LegendItem,
         PersonCard,
+        Draggable,
+        PieChart
     },
+
     data() {
+
         return {
+
             legend: [],
         };
     },
+    
+    mounted() {
+        
+        this.makeChart()
+
+    },
+
+
+    watch: {
+        
+        isUserOpenned: function (isOpen) {
+
+            if (!isOpen) {
+
+                Vue.nextTick( () => this.makeChart() )
+            }
+               
+        }
+    },
+
+
     created() {
+
         this.loadLegend();
     },
-    methods: {
-        loadLegend() {
-            this.legend = legend;
+
+    computed: {
+
+        totalCount() {
+
+            return this.legend.reduce((sum, current) => sum + current.counter, 0)
         },
+
+        formatedDate() {
+
+                return format(new Date(), 'dd.MM.yyyy HH:mm')
+        },
+    },
+
+    methods: {
+
+        makeChart() {
+
+            const legendChartData = {
+
+                    labels: this.legend.map((it) => it.text),
+
+                    datasets: [
+                        {
+                            label: "Легенда",
+
+                            backgroundColor: this.legend.map(
+                                (legendItem) => legendItem.color
+                            ),
+
+                            data: this.legend.map(
+                                (legendItem) => legendItem.counter
+                            ),
+                        },
+                    ]
+            }
+
+            const options = {
+
+                borderWidth: "10px",
+
+                legend: {
+                    display: false,
+                },
+            }
+
+            this.$refs.chart.renderChart(legendChartData, options)
+    
+        },
+
+        loadLegend() {
+            this.legend = legend;           
+        },
+
         closeProfile() {
             this.$emit("update:isUserOpenned", false);
+           
         },
     },
 };
@@ -142,11 +247,11 @@ export default {
 }
 
 .toolbar__header .action .arrow {
-    width: 10px;
-    height: 10px;
-    border-top: 2px solid blue;
-    border-right: 2px solid blue;
-    transform: rotate(-135deg);
+    width: 16px;
+    height: 16px;
+    border-top: 3px solid blue;
+    border-right: 3px solid blue;
+    transform: rotate(225deg);
 }
 
 h3 {
@@ -167,10 +272,10 @@ h3 {
 .content .legend .legend__data {
     display: flex;
     height: 100%;
+    flex-direction: column;
 }
 
-.content .legend .legend__items {
-    flex: 1;
+.content .legend .legend__items {    
     width: 100%;
 }
 
@@ -195,4 +300,18 @@ h3 {
 .profile {
     padding-top: 20px;
 }
+
+.content .legend .legend__data-now {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+}
+
+.legend__total--count {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+}
+
 </style>
